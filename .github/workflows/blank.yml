@@ -1,17 +1,29 @@
+name: VPS-LINUX-CHuan-DET
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠️ 1. Cai dat Tailscale
+        run: |
+          curl -fsSL https://tailscale.com/install.sh | sh
+          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --accept-dns=false
+
       - name: 🔑 2. Thiet lap SSH & User CyberLexS_Vx
         run: |
-          # 1. Tao user moi va thiet lap mat khau
+          # Tao user moi
           sudo useradd -m CyberLexS_Vx
           echo "CyberLexS_Vx:vps12345" | sudo chpasswd
           
-          # 2. Cap quyen Admin (sudo) cho user moi
+          # Cap quyen Admin
           sudo usermod -aG sudo CyberLexS_Vx
           
-          # 3. Cho phep SSH bang mat khau (quan trong)
+          # Cho phep dang nhap bang mat khau
           sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
           sudo service ssh restart
           
-          # 4. Lay IP va in thong tin
+          # Lay IP va in thong tin
           IP_ADDR=$(tailscale ip -4)
           echo -e "\n\033[1;32m=========================================="
           echo -e "   INFO VPS CUA BAN (COPY VAO TERMIUS)"
@@ -21,3 +33,6 @@
           echo -e "🔑 PASS: vps12345"
           echo -e "🚪 PORT: 22"
           echo -e "==========================================\033[0m\n"
+
+      - name: ⏳ 3. Duy tri (6 tieng)
+        run: sleep 21600
