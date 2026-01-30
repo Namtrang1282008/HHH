@@ -1,35 +1,23 @@
-name: VPS-LINUX-CHuan-DET
-on: workflow_dispatch
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🛠️ 1. Cai dat He thong
+      - name: 🔑 2. Thiet lap SSH & User CyberLexS_Vx
         run: |
-          # Cai dat im lang de tranh loi
-          curl -fsSL https://tailscale.com/install.sh | sh > /dev/null 2>&1
-          # Lenh nay se tu dong bo qua cac buoc xac thuc treo
-          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --accept-dns=false --timeout=30s || echo "Tiep tuc chay..."
-
-      - name: 🔑 2. Thiet lap SSH & Info
-        run: |
-          # Tao mat khau moi
-          echo "CyberLexS:@Nam123" | sudo chpasswd
-          sudo service ssh start
+          # 1. Tao user moi va thiet lap mat khau
+          sudo useradd -m CyberLexS_Vx
+          echo "CyberLexS_Vx:vps12345" | sudo chpasswd
           
-          # Lay IP va in ra man hinh ngay lap tuc
+          # 2. Cap quyen Admin (sudo) cho user moi
+          sudo usermod -aG sudo CyberLexS_Vx
+          
+          # 3. Cho phep SSH bang mat khau (quan trong)
+          sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+          sudo service ssh restart
+          
+          # 4. Lay IP va in thong tin
           IP_ADDR=$(tailscale ip -4)
           echo -e "\n\033[1;32m=========================================="
           echo -e "   INFO VPS CUA BAN (COPY VAO TERMIUS)"
           echo -e "=========================================="
           echo -e "📍 IP: $IP_ADDR"
-          echo -e "👤 USER: runner"
+          echo -e "👤 USER: CyberLexS_Vx"
           echo -e "🔑 PASS: vps12345"
           echo -e "🚪 PORT: 22"
           echo -e "==========================================\033[0m\n"
-
-      - name: ⏳ 3. Duy tri (Khong cho chet may)
-        run: |
-          echo "VPS dang hoat dong trong 6 gio..."
-          sleep 21600
